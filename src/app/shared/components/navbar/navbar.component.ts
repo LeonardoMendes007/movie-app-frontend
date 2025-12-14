@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router'; // Importa Router
 import { AuthService } from '../../../core/auth/auth.service';
 import { GenreSummary } from '../../../core/models/movie.models';
 import { MovieAppService } from '../../../core/services/movie-app.service';
-import { ReplaceSpacesPipe } from '../../pipes/replace-spaces.pipe'; // IMPORT DO NOVO PIPE
+import { ReplaceSpacesPipe } from '../../pipes/replace-spaces.pipe';
 
 @Component({
   selector: 'app-navbar',
@@ -13,7 +14,8 @@ import { ReplaceSpacesPipe } from '../../pipes/replace-spaces.pipe'; // IMPORT D
     CommonModule, 
     RouterLink, 
     RouterLinkActive, 
-    ReplaceSpacesPipe // Adiciona o pipe
+    ReplaceSpacesPipe,
+    FormsModule // Necessário para o [(ngModel)]
   ],
   template: `
     <nav class="sticky top-0 z-50 bg-dark-900 shadow-xl border-b border-dark-700">
@@ -77,10 +79,20 @@ import { ReplaceSpacesPipe } from '../../pipes/replace-spaces.pipe'; // IMPORT D
 
           <div class="flex items-center space-x-4">
             
-            <button class="p-2 text-gray-400 hover:text-primary focus:outline-none transition-colors">
-              🔍
-            </button>
-            
+            <form (ngSubmit)="onSearchSubmit()" class="flex items-center space-x-2">
+                <div class="relative">
+                    <input 
+                        type="text"
+                        placeholder="Buscar filmes..."
+                        [(ngModel)]="searchTerm"
+                        name="searchTerm"
+                        class="px-3 py-2 text-sm bg-dark-800 text-white rounded-lg focus:ring-primary focus:border-primary border border-transparent focus:border-opacity-100 transition duration-200 w-32 md:w-48"
+                    >
+                    <button type="submit" class="absolute right-0 top-0 mt-2 mr-2 text-gray-400 hover:text-primary">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </button>
+                </div>
+            </form>
             <div class="relative group">
               <button class="flex items-center bg-dark-700/50 p-2 rounded-full hover:bg-dark-700 transition-colors">
                 <span class="text-white font-semibold w-8 h-8 flex items-center justify-center rounded-full bg-primary/70">
@@ -112,8 +124,11 @@ import { ReplaceSpacesPipe } from '../../pipes/replace-spaces.pipe'; // IMPORT D
   `
 })
 export class NavbarComponent implements OnInit {
+  private router = inject(Router);
   public authService = inject(AuthService);
   private movieService = inject(MovieAppService);
+
+  searchTerm: string = ''; // Variável para armazenar o termo de busca
 
   // Signal para armazenar os gêneros
   genres = signal<GenreSummary[]>([]);
@@ -132,6 +147,15 @@ export class NavbarComponent implements OnInit {
         console.error('Erro ao carregar gêneros para o Navbar:', err);
       }
     });
+  }
+  
+  onSearchSubmit(): void {
+    const term = this.searchTerm.trim();
+    if (term) {
+        // Navega para a nova rota de resultados e limpa o campo
+        this.router.navigate(['/search', term]);
+        this.searchTerm = ''; 
+    }
   }
 
   onLogout(): void {

@@ -25,12 +25,12 @@ export const routes: Routes = [
         { 
             path: 'movies/genres/:genreName', 
             loadComponent: () => import('./features/movies/movies-by-genre/movies-by-genre.component').then(m => m.MoviesByGenreComponent) // Você precisará criar este componente
-        }
-        /*{
-            path: 'movie/:id',
-            loadComponent: () => import('./features/movie-details/movie-details.component').then(m => m.MovieDetailsComponent)
         },
-        // ... outras rotas protegidas (busca, favoritos, etc.)*/
+        { 
+            path: 'search/:term', 
+            loadComponent: () => import('./features/movies/search-results/search-results.component').then(m => m.SearchResultsComponent)
+        },
+        
     ]
   },
   { path: '**', redirectTo: 'home' }

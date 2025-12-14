@@ -81,6 +81,12 @@ export class AuthService {
     return throwError(() => errorMessage);
   }
 
+  getProfileId(): string {
+    // TODO: Implement proper fetching of profile ID from JWT token or user profile API
+    // For now, returning a dummy ID.
+    return '3fa85f64-5717-4562-b3fc-2c963f66afa6'; // Example GUID
+  }
+
   private checkToken() {
     const token = localStorage.getItem('access_token');
     if (!token) return;
