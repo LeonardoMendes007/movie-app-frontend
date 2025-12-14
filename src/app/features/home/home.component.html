@@ -1,0 +1,37 @@
+<div class="min-h-screen bg-dark-900">
+      
+    <app-loading-spinner *ngIf="isLoading()"></app-loading-spinner>
+
+    <div *ngIf="!isLoading()">
+      
+      <div *ngIf="error()" class="text-center text-red-400 p-8 rounded-lg border border-red-500 bg-dark-800/50">
+          <p class="font-bold text-lg mb-2">Ops! Ocorreu um erro:</p>
+          <p>{{ error() }}</p>
+          <p class="text-sm mt-2 text-gray-400">Verifique a conexão com o Backend.</p>
+      </div>
+
+      <ng-container *ngIf="!error()">
+        <app-hero-banner [movie]="heroMovie()"></app-hero-banner>
+
+        <section class="mt-12 space-y-12">
+          
+          <ng-container *ngIf="popularMovies().length > 0">
+            <app-section-title title="Mais Populares" icon="🔥"></app-section-title>
+            <app-movie-carousel [movies]="popularMovies()"></app-movie-carousel>
+          </ng-container>
+          
+          <ng-container *ngIf="recentMovies().length > 0">
+            <app-section-title title="Novos Lançamentos" icon="✨"></app-section-title>
+            <app-movie-carousel [movies]="recentMovies()"></app-movie-carousel>
+          </ng-container>
+          
+          <ng-container *ngIf="actionMovies().length > 0">
+            <app-section-title title="Ação & Aventura" icon="💥"></app-section-title>
+            <app-movie-carousel [movies]="actionMovies()"></app-movie-carousel>
+          </ng-container>
+          
+        </section>
+      </ng-container>
+    </div>
+
+  </div>

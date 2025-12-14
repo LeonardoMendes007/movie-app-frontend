@@ -1,0 +1,56 @@
+<div class="min-h-screen flex items-center justify-center bg-dark-900 px-4 py-12">
+    <div class="max-w-md w-full bg-dark-800 rounded-xl shadow-2xl p-8 border border-dark-700">
+
+        <div class="text-center mb-8">
+            <h2 class="text-3xl font-bold text-white mb-2">Crie sua conta</h2>
+            <p class="text-gray-400">Comece a assistir hoje mesmo</p>
+        </div>
+
+        <div *ngIf="errorMessage()" class="mb-4 p-3 rounded bg-red-500/10 border border-red-500/50 text-red-500 text-sm"
+            [innerHTML]="errorMessage()">
+        </div>
+
+        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-5">
+
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-1">Nome de Usuário</label>
+                <input type="text" formControlName="userName"
+                    class="w-full bg-dark-900 border border-dark-700 rounded-lg px-4 py-3 text-white focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors">
+                <span
+                    *ngIf="registerForm.get('userName')?.touched && registerForm.get('userName')?.errors?.['required']"
+                    class="text-xs text-red-400">Nome é obrigatório</span>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-1">Email</label>
+                <input type="email" formControlName="email"
+                    class="w-full bg-dark-900 border border-dark-700 rounded-lg px-4 py-3 text-white focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors">
+                <span *ngIf="registerForm.get('email')?.touched && registerForm.get('email')?.errors?.['email']"
+                    class="text-xs text-red-400">Email inválido</span>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-1">Senha</label>
+                <input type="password" formControlName="password"
+                    class="w-full bg-dark-900 border border-dark-700 rounded-lg px-4 py-3 text-white focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors">
+                <span
+                    *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.errors?.['minlength']"
+                    class="text-xs text-red-400">Mínimo 6 caracteres</span>
+            </div>
+
+            <button type="submit" [disabled]="registerForm.invalid || authService.isLoading()"
+                class="w-full bg-primary hover:bg-cyan-400 text-dark-900 font-bold py-3 rounded-lg transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+                <span *ngIf="authService.isLoading()">Criando conta...</span>
+                <span *ngIf="!authService.isLoading()">Cadastrar</span>
+            </button>
+        </form>
+
+        <div class="mt-6 text-center text-sm text-gray-400">
+            Já tem uma conta?
+            <a routerLink="/auth/login" class="text-primary hover:text-cyan-300 font-medium transition-colors">
+                Faça Login
+            </a>
+        </div>
+
+    </div>
+</div>

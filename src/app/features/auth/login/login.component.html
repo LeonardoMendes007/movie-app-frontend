@@ -1,0 +1,45 @@
+<div class="min-h-screen flex items-center justify-center bg-dark-900 px-4">
+    <div class="max-w-md w-full bg-dark-800 rounded-xl shadow-2xl p-8 border border-dark-700">
+
+        <div class="text-center mb-8">
+            <h2 class="text-3xl font-bold text-white mb-2">Bem-vindo de volta</h2>
+            <p class="text-gray-400">Entre para continuar assistindo</p>
+        </div>
+
+        <div *ngIf="errorMessage()"
+            class="mb-4 p-3 rounded bg-red-500/10 border border-red-500/50 text-red-500 text-sm">
+            {{ errorMessage() }}
+        </div>
+
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
+
+            <div>
+                <label for="email" class="block text-sm font-medium text-gray-300 mb-1">Email</label>
+                <input id="email" type="email" formControlName="email"
+                    class="w-full bg-dark-900 border border-dark-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
+                    placeholder="seu@email.com">
+            </div>
+
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-300 mb-1">Senha</label>
+                <input id="password" type="password" formControlName="password"
+                    class="w-full bg-dark-900 border border-dark-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
+                    placeholder="••••••••">
+            </div>
+
+            <button type="submit" [disabled]="loginForm.invalid || authService.isLoading()"
+                class="w-full bg-primary hover:bg-cyan-400 text-dark-900 font-bold py-3 rounded-lg transition-all transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+                <span *ngIf="authService.isLoading()">Entrando...</span>
+                <span *ngIf="!authService.isLoading()">Entrar</span>
+            </button>
+        </form>
+
+        <div class="mt-6 text-center text-sm text-gray-400">
+            Não tem uma conta?
+            <a routerLink="/auth/register" class="text-primary hover:text-cyan-300 font-medium transition-colors">
+                Cadastre-se grátis
+            </a>
+        </div>
+
+    </div>
+</div>

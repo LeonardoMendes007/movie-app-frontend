@@ -1,0 +1,54 @@
+<div class="p-4 lg:p-8 min-h-screen">
+      
+    <app-section-title 
+      [title]="currentGenre() ? currentGenre()!.name : 'Carregando Categoria...'"
+      icon="🎬"
+    ></app-section-title>
+    
+    <app-loading-spinner *ngIf="isLoading()"></app-loading-spinner>
+
+    <div *ngIf="!isLoading()">
+      
+      <div *ngIf="error()" class="text-center text-red-500 mt-12">
+        <p>Erro ao carregar filmes: {{ error() }}</p>
+      </div>
+
+      <div *ngIf="!currentGenre() && !error()" class="text-center text-gray-400 mt-12">
+        <p class="text-xl">A categoria "{{ genreSlug() }}" não foi encontrada.</p>
+        <a routerLink="/home" class="text-primary hover:underline mt-4 block">Voltar para a Home</a>
+      </div>
+
+      <div *ngIf="currentGenre() && movies().length > 0" 
+           class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-4 mt-6">
+        
+        <app-movie-card 
+          *ngFor="let movie of movies()" 
+          [movie]="movie"
+        ></app-movie-card>
+
+      </div>
+
+      <div *ngIf="currentGenre() && movies().length === 0 && !error()" class="text-center text-gray-400 mt-12">
+        <p class="text-xl">Nenhum filme encontrado na categoria {{ currentGenre()!.name }}.</p>
+      </div>
+
+      <div class="flex justify-center mt-10 space-x-4" *ngIf="movies().length > 0">
+        <button 
+          (click)="changePage(currentPage() - 1)" 
+          [disabled]="currentPage() === 1"
+          class="px-4 py-2 bg-dark-700 text-white rounded-md disabled:opacity-50"
+        >
+          Anterior
+        </button>
+        <span class="text-white self-center">Página {{ currentPage() }}</span>
+        <button 
+          (click)="changePage(currentPage() + 1)" 
+          [disabled]="!hasMorePages()"
+          class="px-4 py-2 bg-primary text-dark-900 rounded-md disabled:opacity-50 font-bold"
+        >
+          Próxima
+        </button>
+      </div>
+      
+    </div>
+  </div>
