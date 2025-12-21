@@ -17,6 +17,7 @@ export interface TokenResponse {
   }
   
   export interface User {
-    email: string;
+    id?: string;
+    email?: string;
     name?: string;
   }

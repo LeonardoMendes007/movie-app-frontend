@@ -8,6 +8,7 @@ import { MovieSummary } from '../../../core/models/movie.models';
   standalone: true,
   imports: [CommonModule, RouterLink],
   template: `
+  <a [routerLink]="['/movies', movie.id]">
     <div 
       class="bg-dark-800 rounded-lg overflow-hidden shadow-xl 
              transform hover:scale-[1.03] transition-transform duration-300 
@@ -42,6 +43,9 @@ import { MovieSummary } from '../../../core/models/movie.models';
         </p>
       </div>
     </div>
+  </a>
+
+   
   `,
   styles: [`
     .movie-card {

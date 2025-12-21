@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/auth/auth.guard';
+import { profileGuard } from './core/profile/profile.guard';
 // import { profileCheckGuard } from './core/profile/profile.guard'; // Adicionaremos este depois
 
 export const routes: Routes = [
@@ -17,20 +18,35 @@ export const routes: Routes = [
     path: '',
     canActivate: [authGuard], // AQUI: Checa se o usuário está autenticado
     children: [
-        {
-            // Note: O profileCheckGuard irá garantir que ele passe pelo onboarding se precisar
-            path: 'home',
-            loadComponent: () => import('./features/home/home.component').then(m => m.HomeComponent)
-        },
-        { 
-            path: 'movies/genres/:genreName', 
-            loadComponent: () => import('./features/movies/movies-by-genre/movies-by-genre.component').then(m => m.MoviesByGenreComponent) // Você precisará criar este componente
-        },
-        { 
-            path: 'search/:term', 
-            loadComponent: () => import('./features/movies/search-results/search-results.component').then(m => m.SearchResultsComponent)
-        },
-        
+      {
+        path: 'setup-profile',
+        loadComponent: () => import('./features/setup-profile/setup-profile.component').then(m => m.SetupProfileComponent)
+      },
+      {
+        path: 'home',
+        canActivate: [profileGuard],
+        loadComponent: () => import('./features/home/home.component').then(m => m.HomeComponent)
+      },
+      {
+        path: 'movies/genres/:genreName',
+        canActivate: [profileGuard],
+        loadComponent: () => import('./features/movies/movies-by-genre/movies-by-genre.component').then(m => m.MoviesByGenreComponent) // Você precisará criar este componente
+      },
+      {
+        path: 'search/:term',
+        canActivate: [profileGuard],
+        loadComponent: () => import('./features/movies/search-results/search-results.component').then(m => m.SearchResultsComponent)
+      },
+      {
+        path: 'movies/:id', // Rota para detalhes
+        canActivate: [profileGuard],
+        loadComponent: () => import('./features/movies/movie-details/movie-details.component').then(m => m.MovieDetailsComponent)
+      },
+      {
+        path: 'favorites',
+        canActivate: [profileGuard],
+        loadComponent: () => import('./features/favorites/favorites.component').then(m => m.FavoritesComponent)
+      }
     ]
   },
   { path: '**', redirectTo: 'home' }

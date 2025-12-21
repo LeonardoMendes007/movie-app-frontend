@@ -3,7 +3,7 @@ import { Injectable, Signal, inject, signal } from '@angular/core';
 import { Observable, map, tap } from 'rxjs'; // Import do tap e Signal
 import { environment } from '../../../environments/environment';
 import { ReplaceSpacesPipe } from '../../shared/pipes/replace-spaces.pipe'; // Novo import
-import { GenreSummary, GetMoviesQueryParams, IPagedList, MovieSummary, MoviesApiResponse } from '../models/movie.models';
+import { GenreSummary, GetMoviesQueryParams, IPagedList, MovieDetails, MovieDetailsApiResponse, MovieSummary, MoviesApiResponse } from '../models/movie.models';
 
 @Injectable({
   providedIn: 'root'
@@ -51,6 +51,13 @@ export class MovieAppService {
     });
 
     return this.http.get<MoviesApiResponse>(this.MOVIE_API_URL, { params: httpParams }).pipe(
+      map(response => response.data)
+    );
+  }
+
+  // Adicione este método na classe MovieAppService
+  getMovieById(id: string): Observable<MovieDetails> {
+    return this.http.get<MovieDetailsApiResponse>(`${this.MOVIE_API_URL}/${id}`).pipe(
       map(response => response.data)
     );
   }

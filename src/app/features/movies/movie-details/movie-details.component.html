@@ -1,0 +1,76 @@
+<div class="min-h-screen bg-black text-white">
+
+    <div class="relative w-full bg-zinc-900 shadow-xl">
+        <div class="relative w-full aspect-video">
+
+            <video #videoPlayer controls autoplay
+                class="absolute top-0 left-0 w-full h-full object-contain bg-black focus:outline-none"
+                poster="{{ movie()?.imageUrl }}">
+            </video>
+
+            <div *ngIf="isLoading()" class="absolute inset-0 flex items-center justify-center bg-black/80 z-10">
+                <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-600"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 lg:px-8 mt-12" *ngIf="movie() as m">
+
+        <div class="flex flex-col md:flex-row md:items-start justify-between gap-8">
+
+            <div class="flex-1">
+                <h1 class="text-5xl font-extrabold mb-3 text-white drop-shadow-md">{{ m.name }}</h1>
+
+                <div class="flex flex-wrap items-center gap-4 text-lg font-medium text-gray-300 mb-6">
+                    <span class="text-sm font-semibold">{{ m.releaseDate | date:'yyyy' }}</span>
+                    <span class="text-sm text-yellow-400">
+                        {{ m.views | number }} Visualizações
+                    </span>
+                    <span
+                        class="border border-zinc-700 px-2 py-0.5 rounded text-xs font-bold bg-zinc-800 text-white">HD</span>
+                </div>
+
+                <div class="flex gap-4 mb-10">
+                    <button (click)="toggleFavorite()" [disabled]="isFavoriteLoading()"
+                        class="flex items-center gap-2 bg-zinc-800 text-white px-6 py-3 rounded-lg font-bold text-lg 
+                           border border-zinc-700 hover:bg-zinc-700 transition-colors duration-300 disabled:opacity-50">
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" [class.text-red-600]="isFavorited()"
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                            [attr.fill]="isFavorited() ? 'currentColor' : 'none'">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                        {{ isFavorited() ? 'Remover da Lista' : 'Adicionar à Minha Lista' }}
+                    </button>
+                </div>
+            </div>
+
+            <div class="hidden lg:block w-72 shrink-0 self-start">
+                <img [src]="m.imageUrl" class="rounded-lg shadow-2xl w-full border border-zinc-800"
+                    alt="Poster do filme">
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8 border-t border-zinc-800 pt-8">
+
+            <div class="lg:col-span-2">
+                <h2 class="text-2xl font-semibold mb-3">Sinopse</h2>
+                <p class="text-gray-400 leading-relaxed text-lg">
+                    {{ m.synopsis }}
+                </p>
+            </div>
+
+            <div>
+                <h2 class="text-2xl font-semibold mb-3">Gêneros</h2>
+                <div class="flex gap-2 flex-wrap">
+                    <span *ngFor="let g of m.genries" class="bg-zinc-800 text-gray-300 text-sm px-3 py-1 rounded-full 
+                               hover:bg-red-600 hover:text-white transition-colors duration-200 cursor-pointer">
+                        {{ g.name }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

@@ -6,6 +6,7 @@ import { AuthService } from '../../../core/auth/auth.service';
 import { GenreSummary } from '../../../core/models/movie.models';
 import { MovieAppService } from '../../../core/services/movie-app.service';
 import { ReplaceSpacesPipe } from '../../pipes/replace-spaces.pipe';
+import { ProfileService } from './../../../core/services/profile.service';
 
 @Component({
   selector: 'app-navbar',
@@ -68,11 +69,11 @@ import { ReplaceSpacesPipe } from '../../pipes/replace-spaces.pipe';
               </div>
               
               <a 
-                routerLink="/mylist" 
+                routerLink="/favorites" 
                 routerLinkActive="text-primary border-primary"
                 class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium border-b-2 border-transparent transition-colors duration-200"
               >
-                Minha Lista
+                Favoritos
               </a>
             </div>
           </div>
@@ -95,15 +96,13 @@ import { ReplaceSpacesPipe } from '../../pipes/replace-spaces.pipe';
             </form>
             <div class="relative group">
               <button class="flex items-center bg-dark-700/50 p-2 rounded-full hover:bg-dark-700 transition-colors">
-                <span class="text-white font-semibold w-8 h-8 flex items-center justify-center rounded-full bg-primary/70">
-                {{ authService.currentUser()?.name?.[0]?.toUpperCase() || authService.currentUser()?.email?.[0]?.toUpperCase() || 'U' }}
-                </span>
+                <img src="{{ this.profileService.currentProfile()?.imageUrl || '' }}" class="text-white font-semibold w-8 h-8 flex items-center justify-center rounded-full bg-primary/70"/>
               </button>
               
               <div class="absolute right-0 mt-2 w-48 bg-dark-800 rounded-md shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform scale-95 group-hover:scale-100 origin-top-right">
                 <div class="py-1">
                   <span class="block px-4 py-2 text-sm text-gray-300 truncate border-b border-dark-700">
-                    {{ authService.currentUser()?.email }}
+                    {{ profileService.currentProfile()?.userName }}
                   </span>
                   
                   <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-dark-700">
@@ -127,6 +126,7 @@ export class NavbarComponent implements OnInit {
   private router = inject(Router);
   public authService = inject(AuthService);
   private movieService = inject(MovieAppService);
+  public profileService = inject(ProfileService);
 
   searchTerm: string = ''; // Variável para armazenar o termo de busca
 
@@ -135,7 +135,7 @@ export class NavbarComponent implements OnInit {
 
   ngOnInit(): void {
     // Busca os gêneros uma vez ao carregar o Navbar
-    this.fetchGenres();
+    this.fetchGenres(); 
   }
 
   fetchGenres(): void {
@@ -160,5 +160,6 @@ export class NavbarComponent implements OnInit {
 
   onLogout(): void {
     this.authService.logout();
+    
   }
 }

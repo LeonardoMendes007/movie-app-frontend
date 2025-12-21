@@ -82,9 +82,7 @@ export class AuthService {
   }
 
   getProfileId(): string {
-    // TODO: Implement proper fetching of profile ID from JWT token or user profile API
-    // For now, returning a dummy ID.
-    return '3fa85f64-5717-4562-b3fc-2c963f66afa6'; // Example GUID
+    return this.currentUser()?.id || ""; 
   }
 
   private checkToken() {
@@ -94,14 +92,19 @@ export class AuthService {
     try {
       const payload = token.split('.')[1];
       const decodedPayload = JSON.parse(atob(payload));
-  
+      
+      const id =
+        decodedPayload[
+          'Id'
+        ];
+
       const email =
         decodedPayload[
           'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'
         ];
   
       if (email) {
-        this.currentUser.set({ email });
+        this.currentUser.set({ id, email });
       }
     } catch (error) {
       console.error('Invalid JWT token', error);

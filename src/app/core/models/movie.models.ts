@@ -39,8 +39,23 @@ export interface IPagedList<T> {
     hasPreviusPage: boolean; // Note: 'Previus' no C#
 }
 
+export interface MovieDetails {
+    id: string;
+    name: string;
+    synopsis: string;
+    imageUrl: string;
+    pathM3U8File: string; // A URL do vídeo
+    releaseDate: string;
+    views: number;
+    genries: GenreSummary[]; // Atenção: O backend enviou "Genries"
+    createdDate: string;
+    updatedDate: string;
+}
+
 // Tipo de resposta final para /api/movies
 export type MoviesApiResponse = ApiResponse<IPagedList<MovieSummary>>;
+
+export type MovieDetailsApiResponse = ApiResponse<MovieDetails>;
 
 // Tipo de resposta final para /api/genres
 // O GenresController não usa o ResponseBase<T> no retorno (aparentemente retorna a lista pura ou outro formato),

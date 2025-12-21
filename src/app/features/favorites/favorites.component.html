@@ -1,0 +1,35 @@
+<div class="min-h-screen bg-black text-white px-4 lg:px-8 pt-20">
+    <h1 class="text-4xl font-extrabold mb-8 text-white border-b border-zinc-800 pb-3">Meus Favoritos</h1>
+
+    <div *ngIf="isLoading()" class="text-center py-10">
+        <div class="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-red-600 mx-auto"></div>
+        <p class="mt-4 text-gray-400">Carregando seus filmes favoritos...</p>
+    </div>
+
+    <div *ngIf="!isLoading() && favorites().length > 0"
+        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 gap-4 md:gap-6">
+
+        <a *ngFor="let movie of favorites()" [routerLink]="['/movies', movie.id]"
+            class="group relative block transform hover:scale-105 transition-transform duration-300 shadow-xl rounded-lg overflow-hidden">
+
+            <img [src]="movie.imageUrl" [alt]="movie.name" class="w-full h-full object-cover aspect-[2/3]">
+
+            <div
+                class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                <p class="text-sm font-bold text-white leading-tight line-clamp-2">{{ movie.name }}</p>
+            </div>
+        </a>
+    </div>
+
+    <div *ngIf="!isLoading() && favorites().length === 0" class="text-center py-20 bg-zinc-900 rounded-lg mt-8">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-red-600" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+        </svg>
+        <p class="mt-4 text-xl font-semibold text-gray-300">Nenhum favorito encontrado.</p>
+        <p class="mt-2 text-gray-500">Adicione filmes clicando no ícone de coração na página de detalhes ou navegue pela
+            página inicial.</p>
+    </div>
+
+</div>

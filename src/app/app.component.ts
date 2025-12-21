@@ -1,38 +1,44 @@
+// src/app/app.component.ts
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-
-// Componentes Reutilizáveis (serão criados futuramente em src/app/shared/)
-// Como o Navbar é global e a maior parte da app é protegida, ele fica aqui.
+import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
+import { filter } from 'rxjs';
 import { AuthService } from './core/auth/auth.service';
 import { NavbarComponent } from './shared/components/navbar/navbar.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [
-    CommonModule, 
-    RouterOutlet,
-    // Importamos o Navbar aqui para ele aparecer em todas as rotas filhas
-    NavbarComponent,
-  ],
+  imports: [CommonModule, RouterOutlet, NavbarComponent],
   template: `
-    <app-navbar *ngIf="shouldShowNavbar()"></app-navbar>
+    <app-navbar *ngIf="showNavbar"></app-navbar>
 
     <main>
       <router-outlet></router-outlet>
     </main>
-  `,
-  styleUrls: ['./app.component.scss']
+  `
 })
 export class AppComponent {
+  private router = inject(Router);
   private authService = inject(AuthService);
 
-  // Lógica simples para determinar se o Navbar deve ser exibido.
-  // Se o usuário estiver logado, mostramos.
-  // Em apps mais complexas, você usaria o Router para verificar a URL atual
-  // e esconder em rotas específicas (ex: /auth/login, /auth/register).
-  shouldShowNavbar(): boolean {
-    return this.authService.currentUser() !== null;
+  showNavbar = false;
+
+  constructor() {
+    // Escuta as mudanças de rota para decidir se mostra ou não a Navbar
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: any) => {
+      const url = event.urlAfterRedirects || event.url;
+      
+      // Lista de rotas onde a Navbar NÃO deve aparecer
+      const hiddenRoutes = ['/setup-profile', '/auth/login', '/auth/register'];
+      
+      // Verifica se a URL atual começa com alguma das rotas escondidas
+      const isHidden = hiddenRoutes.some(route => url.includes(route));
+      
+      // Regra final: Não está em rota escondida E usuário está logado
+      this.showNavbar = !isHidden && this.authService.currentUser() !== null;
+    });
   }
 }
