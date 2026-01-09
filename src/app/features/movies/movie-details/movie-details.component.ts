@@ -1,8 +1,9 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import Hls from 'hls.js';
 import { catchError, forkJoin, of } from 'rxjs';
+import { environment } from '../../../../environments/environment'; // Importa as variáveis de ambiente
 import { AuthService } from '../../../core/auth/auth.service';
 import { MovieDetails } from '../../../core/models/movie.models';
 import { MovieAppService } from '../../../core/services/movie-app.service';
@@ -11,8 +12,9 @@ import { ProfileService } from '../../../core/services/profile.service';
 @Component({
   selector: 'app-movie-details',
   standalone: true,
-  imports: [CommonModule],
-  templateUrl: "./movie-details.component.html"
+  imports: [CommonModule, DatePipe],
+  templateUrl: "./movie-details.component.html",
+  styleUrls: ['./movie-details.component.css'] // Importa o novo arquivo CSS
 })
 export class MovieDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
   // Injections
@@ -21,14 +23,25 @@ export class MovieDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
   private profileService = inject(ProfileService);
   private authService = inject(AuthService);
 
-  // View Child para o elemento de vídeo
+  // View Child para o elemento de vídeo e controles
   @ViewChild('videoPlayer') videoElementRef!: ElementRef<HTMLVideoElement>;
+  @ViewChild('speedSelect') speedSelectRef!: ElementRef<HTMLSelectElement>;
+  @ViewChild('progressBar') progressBarRef!: ElementRef<HTMLInputElement>;
+  @ViewChild('volumeSlider') volumeSliderRef!: ElementRef<HTMLInputElement>;
+  @ViewChild('videoContainer') videoContainerRef!: ElementRef<HTMLDivElement>;
+
 
   // Signals e State
   movie = signal<MovieDetails | null>(null);
   isLoading = signal(true);
   isFavoriteLoading = signal(false);
   isFavorited = signal(false); // Controle local visual
+
+  isPlaying = signal(false);
+  isMuted = signal(false);
+  currentTime = signal(0);
+  duration = signal(0);
+  isFullscreen = signal(false);
   
   private hls: Hls | null = null;
   private movieId: string | null = null;
@@ -55,9 +68,8 @@ export class MovieDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
           this.isFavorited.set((favoriteIds as string[]).includes(this.movieId!)); 
           this.isLoading.set(false);
 
-          if (movieDetails.pathM3U8File) {
-            this.initPlayer(movieDetails.pathM3U8File);
-          }
+          const videoSrc = `${environment.streamingApiBaseUrl}/${this.movieId}`;
+          this.initPlayer(videoSrc);
         },
         error: (err) => {
           console.error(err);
@@ -69,7 +81,41 @@ export class MovieDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    // O player é inicializado no subscribe, mas precisamos garantir que a view carregou
+    if (this.videoElementRef) {
+        const video = this.videoElementRef.nativeElement;
+
+        // Define o volume inicial e atualiza o slider
+        video.volume = 1; 
+        if (this.volumeSliderRef) {
+          this.volumeSliderRef.nativeElement.value = '1';
+        }
+
+        // Anexa listeners de tempo e progresso
+        video.addEventListener('timeupdate', () => this.updateProgressBar());
+        video.addEventListener('loadedmetadata', () => {
+            this.duration.set(video.duration);
+            this.updateProgressBar(); // Garante que a barra seja atualizada após carregar metadados
+        });
+        video.addEventListener('play', () => this.isPlaying.set(true));
+        video.addEventListener('pause', () => this.isPlaying.set(false));
+        video.addEventListener('ended', () => this.isPlaying.set(false));
+        video.addEventListener('volumechange', () => this.isMuted.set(video.muted || video.volume === 0));
+
+        // Listener para a barra de progresso (arrastar)
+        if (this.progressBarRef) {
+            this.progressBarRef.nativeElement.addEventListener('input', (event: Event) => this.seek(event));
+        }
+
+        // Listener para o controle de volume (arrastar)
+        if (this.volumeSliderRef) {
+          this.volumeSliderRef.nativeElement.addEventListener('input', (event: Event) => this.setVolume(event));
+        }
+
+        // Listener para o modo tela cheia
+        document.addEventListener('fullscreenchange', () => {
+          this.isFullscreen.set(!!document.fullscreenElement);
+        });
+    }
   }
 
   initPlayer(src: string) {
@@ -80,20 +126,99 @@ export class MovieDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
       }
 
       this.hls = new Hls();
+      
+      this.hls.on(Hls.Events.LEVEL_LOADED, (event, data) => {
+        data.details.fragments.forEach(fragment => {
+          fragment.url = `${environment.streamingApiBaseUrl}/${this.movieId}/${fragment.relurl}`;
+        });
+      });
+
       this.hls.loadSource(src);
       
       // Anexar ao elemento HTML
       if (this.videoElementRef) {
         this.hls.attachMedia(this.videoElementRef.nativeElement);
+        // O player é inicializado no subscribe e ngAfterViewInit, a reprodução será controlada pelo botão
       }
     } else if (this.videoElementRef?.nativeElement.canPlayType('application/vnd.apple.mpegurl')) {
       // Fallback para Safari (suporte nativo)
       this.videoElementRef.nativeElement.src = src;
+      // O player é inicializado no subscribe e ngAfterViewInit, a reprodução será controlada pelo botão
     }
   }
 
-  playVideo() {
-    this.videoElementRef?.nativeElement.play();
+  togglePlayPause() {
+    if (this.videoElementRef) {
+      const video = this.videoElementRef.nativeElement;
+      if (video.paused) {
+        video.play();
+      } else {
+        video.pause();
+      }
+      this.isPlaying.set(!video.paused);
+    }
+  }
+
+  toggleMute() {
+    if (this.videoElementRef) {
+      const video = this.videoElementRef.nativeElement;
+      video.muted = !video.muted;
+      this.isMuted.set(video.muted);
+    }
+  }
+
+  setVolume(event: Event) {
+    if (this.videoElementRef && this.volumeSliderRef) {
+      const video = this.videoElementRef.nativeElement;
+      const slider = this.volumeSliderRef.nativeElement;
+      video.volume = parseFloat(slider.value);
+      this.isMuted.set(video.volume === 0);
+    }
+  }
+
+  setPlaybackSpeed(speed: string) {
+    if (this.videoElementRef) {
+      this.videoElementRef.nativeElement.playbackRate = parseFloat(speed);
+    }
+  }
+
+  seek(event: Event) {
+    if (this.videoElementRef && this.progressBarRef) {
+      const video = this.videoElementRef.nativeElement;
+      const progressBar = this.progressBarRef.nativeElement;
+      const seekTime = (parseFloat(progressBar.value) / 100) * (isNaN(video.duration) ? 0 : video.duration);
+      video.currentTime = seekTime;
+    }
+  }
+
+  updateProgressBar() {
+    if (this.videoElementRef && this.progressBarRef) {
+      const video = this.videoElementRef.nativeElement;
+      const progressBar = this.progressBarRef.nativeElement;
+      const current = isNaN(video.currentTime) ? 0 : video.currentTime;
+      const total = isNaN(video.duration) ? 0 : video.duration;
+      const progress = (current / total) * 100;
+
+      progressBar.value = isNaN(progress) ? '0' : progress.toString(); 
+      this.currentTime.set(current);
+      this.duration.set(total);
+
+      // Atualiza a variável CSS customizada para o preenchimento da barra
+      progressBar.style.setProperty('--progress-percentage', `${progress || 0}%`);
+    }
+  }
+
+  toggleFullscreen() {
+    if (this.videoContainerRef) {
+      const videoContainer = this.videoContainerRef.nativeElement;
+      if (!document.fullscreenElement) {
+        videoContainer.requestFullscreen().catch(err => {
+          console.error(`Error attempting to enable fullscreen: ${err.message} (${err.name})`);
+        });
+      } else {
+        document.exitFullscreen();
+      }
+    }
   }
 
   toggleFavorite() {
@@ -135,5 +260,9 @@ export class MovieDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.hls) {
       this.hls.destroy();
     }
+    // Removendo o listener global de fullscreen para evitar vazamentos de memória
+    document.removeEventListener('fullscreenchange', () => {
+      this.isFullscreen.set(!!document.fullscreenElement);
+    });
   }
 }

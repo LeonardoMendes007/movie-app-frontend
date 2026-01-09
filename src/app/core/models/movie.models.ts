@@ -44,7 +44,6 @@ export interface MovieDetails {
     name: string;
     synopsis: string;
     imageUrl: string;
-    pathM3U8File: string; // A URL do vídeo
     releaseDate: string;
     views: number;
     genries: GenreSummary[]; // Atenção: O backend enviou "Genries"

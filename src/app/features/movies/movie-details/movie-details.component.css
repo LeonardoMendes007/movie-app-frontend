@@ -1,0 +1,79 @@
+/* Styles for video player controls */
+.video-progress-bar::-webkit-slider-runnable-track {
+    background: #4b5563; /* Cor de fundo do trilho */
+    border-radius: 9999px;
+    height: 4px;
+}
+
+.video-progress-bar::-moz-range-track {
+    background: #4b5563; /* Cor de fundo do trilho */
+    border-radius: 9999px;
+    height: 4px;
+}
+
+.video-progress-bar::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #dc2626; /* Cor do thumb */
+    cursor: pointer;
+    margin-top: -6px; /* Ajuste para centralizar o thumb na trilha */
+}
+
+.video-progress-bar::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #dc2626; /* Cor do thumb */
+    cursor: pointer;
+}
+
+/* Estilo para o preenchimento da barra */
+.video-progress-bar {
+    background: linear-gradient(to right, #dc2626 0%, #dc2626 var(--progress-percentage), #4b5563 var(--progress-percentage), #4b5563 100%);
+}
+
+.video-volume-slider::-webkit-slider-runnable-track {
+    background: #4b5563; /* Cor de fundo do trilho do volume */
+    border-radius: 9999px;
+    height: 4px;
+}
+
+.video-volume-slider::-moz-range-track {
+    background: #4b5563; /* Cor de fundo do trilho do volume */
+    border-radius: 9999px;
+    height: 4px;
+}
+
+.video-volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #dc2626; /* Cor do thumb do volume */
+    cursor: pointer;
+    margin-top: -4px; /* Ajuste para centralizar o thumb na trilha */
+}
+
+.video-volume-slider::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #dc2626; /* Cor do thumb do volume */
+    cursor: pointer;
+}
+
+/* Esconder o foco padrão para um estilo mais limpo */
+.video-progress-bar:focus::-webkit-slider-thumb,
+.video-volume-slider:focus::-webkit-slider-thumb {
+    outline: none;
+}
+
+.video-progress-bar:focus::-moz-range-thumb,
+.video-volume-slider:focus::-moz-range-thumb {
+    outline: none;
+}
+
